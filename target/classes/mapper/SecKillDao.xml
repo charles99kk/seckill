@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.seckill.dao.SeckillDao">
+	<!-- 目的：为DAO接口方法提供sql语句配置 -->
+	<update id="reduceNumber">
+		<!--resultType为int 可以不用设。
+		 parameterType多个参数可以不用给，能够自动识别出这两个属性
+		 #{}:${}解析穿过来的参数值不带单引号，#{}解析传过来参数带单引号。
+		 #{}这个是ognl的表达式语言 ${}是jstl表达式语言  -->
+		<!-- 具体SQL -->
+		update
+			seckill
+		set
+			number = number - 1
+		where seckill_id = #{seckillId}
+		and start_time <![CDATA[ <= ]]> #{killTime} <!-- XML中不允许有‘<=’,用<![CDATA[ <= ]]声明不是XML语法>-->
+		and end_time >= #{killTime}
+		and number > 0;
+	</update>
+	<select id="queryById" resultType="Seckill" parameterType="long">
+		<!-- 已经开启了使用列别名替换列和驼峰命名转换见mybatis-config.xml,就不需要这样写了
+		seckill_id as seckillId  -->
+		select seckill_id,name,number,start_time,end_time,create_time
+		from seckill
+		where seckill_id = #{seckillId}
+	</select>
+	
+	<select id="queryAll" resultType="Seckill">
+	<!--resault是个list，通过泛型查看里面的内容，resaultType直接给出里面的类型就可以(泛型的类型)
+		parameterType = "int"多个参数可以不用给
+	  -->
+	  	select seckill_id,name,number,start_time,end_time,create_time
+		from seckill
+		order by create_time desc
+		limit #{offset},#{limit}
+	</select>
+</mapper>
